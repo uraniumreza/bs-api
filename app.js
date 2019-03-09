@@ -1,16 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+
+const routes = require('./src/routes/v1');
 const dbConfig = require('./config/database.config.js');
 
 const { uri, options } = dbConfig;
 
 mongoose.Promise = global.Promise;
 mongoose
-  .connect(
-    uri,
-    options,
-  )
+  .connect(uri, options)
   .then(() => {
     console.log('Successfully connected to the database');
   })
@@ -42,6 +41,8 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to bs-api, yayy!' });
 });
+
+app.use('/api/v1', routes);
 
 app.use((req, res, next) => {
   const error = new Error('Not found');
