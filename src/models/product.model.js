@@ -19,13 +19,13 @@ const productSchema = mongoose.Schema(
       required: true,
       index: true,
     },
-    colors: {
-      type: [String],
-      default: undefined,
+    color: {
+      type: String,
+      maxlength: 32,
     },
-    sizes: {
-      type: [String],
-      default: undefined,
+    size: {
+      type: String,
+      maxlength: 64,
     },
     price: {
       type: Number,
