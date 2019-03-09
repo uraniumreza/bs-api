@@ -40,7 +40,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to prostuti-api, yayy!' });
+  res.json({ message: 'Welcome to bs-api, yayy!' });
 });
 
 app.use((req, res, next) => {
