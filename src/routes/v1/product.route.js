@@ -8,10 +8,10 @@ router
   .get(controller.list)
   .post(controller.create);
 
-// router
-//   .route('/:productId')
-//   .get(controller.get)
-//   .patch(controller.update)
-//   .delete(controller.remove);
+router
+  .route('/:productId')
+  .get(controller.get)
+  .patch(controller.update)
+  .delete(controller.remove);
 
 module.exports = router;
