@@ -16,8 +16,7 @@ router.route('/profile').get(authorize(), controller.loggedIn);
 router
   .route('/:userId')
   .get(authorize(LOGGED_USER), controller.get)
-  .put(authorize(LOGGED_USER), controller.replace)
   .patch(authorize(LOGGED_USER), controller.update)
-  .delete(authorize(LOGGED_USER), controller.remove);
+  .delete(authorize(ADMIN), controller.remove);
 
 module.exports = router;

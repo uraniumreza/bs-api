@@ -26,20 +26,6 @@ exports.create = async (req, res, next) => {
   }
 };
 
-exports.replace = async (req, res, next) => {
-  try {
-    const { user } = req.locals;
-    const newUser = new User(req.body);
-
-    await user.update(newUser, { override: true, upsert: true });
-    const savedUser = await User.findById(user._id);
-
-    res.json(savedUser.transform());
-  } catch (error) {
-    next(User.checkDuplicateEmail(error));
-  }
-};
-
 exports.update = (req, res, next) => {
   const user = Object.assign(req.locals.user, req.body);
 
