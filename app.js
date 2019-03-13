@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const passport = require('passport');
+const strategies = require('./config/passport');
 
 const routes = require('./src/routes/v1');
 const dbConfig = require('./config/database.config.js');
@@ -19,7 +21,6 @@ mongoose
   });
 
 const app = express();
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -37,6 +38,9 @@ app.use((req, res, next) => {
 
   next();
 });
+
+app.use(passport.initialize());
+passport.use('jwt', strategies.jwt);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to bs-api, yayy!' });
