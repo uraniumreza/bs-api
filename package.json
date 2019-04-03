@@ -1,6 +1,6 @@
 {
   "name": "bs-api",
-  "version": "0.1",
+  "version": "0.0.1",
   "description": "api services for bs-trading retail application",
   "main": "server.js",
   "repository": "https://github.com/uraniumreza/bs-api",
