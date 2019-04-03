@@ -4,7 +4,9 @@ const Product = require('../models/product.model');
 
 exports.list = async (req, res, next) => {
   try {
-    const products = await Product.list(req.query);
+    let options = { ...req.query };
+    if (req.user.role === 'user') options = { ...options, active: true };
+    const products = await Product.list(options);
     const transformedProducts = products.map(product => product.transformList());
     res.status(httpStatus.OK).json(transformedProducts);
   } catch (error) {
