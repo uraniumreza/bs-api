@@ -22,15 +22,16 @@ const verifyProducts = async (products) => {
 
   const finalProducts = newProducts.map((product, index) => {
     const { ordered_quantity: quantity } = products[index];
-    const dbProduct = product.toObject();
+    const { stock_count: stock, _id, price } = product.toObject();
     const newProduct = {
-      product_id: dbProduct._id,
+      price,
+      product_id: _id,
+      stock_count: stock,
       ordered_quantity: quantity,
       final_quantity: undefined,
-      price: dbProduct.price,
     };
 
-    if (dbProduct.stock_count === 0) newProduct.final_quantity = 0;
+    if (stock === 0) newProduct.final_quantity = 0;
     else if (newProduct.stock_count < quantity) {
       newProduct.final_quantity = newProduct.stock_count;
     } else newProduct.final_quantity = quantity;
