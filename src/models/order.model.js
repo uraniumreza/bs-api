@@ -69,15 +69,19 @@ orderSchema.method({
         image: 1,
         name: 1,
         price: 1,
+        _id: 0,
       },
     );
 
     const transformedProducts = [];
-    newProducts.map(newProduct => transformedProducts.push(newProduct.toObject()));
+    newProducts.map((newProduct, index) => {
+      const { _id, ...product } = products[index].toObject();
+      transformedProducts.push({ ...newProduct.toObject(), ...product });
+    });
 
     return transformedProducts;
   },
-  async transformList() {
+  async transformOrder() {
     const transformed = {};
     const fields = ['order_id', 'user_id', 'products', 'total_price', 'sr_id', 'state'];
 
@@ -95,6 +99,9 @@ orderSchema.statics = {
     return this.find(options)
       .sort({ createdAt: -1 })
       .exec();
+  },
+  get(id) {
+    return this.findById(id).exec();
   },
 };
 

@@ -77,57 +77,54 @@ exports.list = async (req, res, next) => {
     if (req.user.role === 'user') options.user_id = req.user._id;
     else if (req.user.role === 'sales') options.sr_id = req.user._id;
     const orders = await Order.list(options);
-    Promise.all(orders.map(order => order.transformList())).then(data => res.status(httpStatus.OK).json(data));
+    Promise.all(orders.map(order => order.transformOrder())).then(data => res.status(httpStatus.OK).json(data));
   } catch (error) {
     next(error);
   }
 };
 
-// exports.get = async (req, res, next) => {
-//   try {
-//     const { productId } = req.params;
-//     if (mongoose.Types.ObjectId.isValid(productId)) {
-//       const product = await Product.findById(productId).exec();
-//       res.status(httpStatus.OK).json(product);
-//     } else {
-//       res.status(httpStatus.NOT_FOUND).json({ message: 'Product does not exist' });
-//     }
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+exports.get = async (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+    if (mongoose.Types.ObjectId.isValid(orderId)) {
+      const order = await Order.get(orderId);
+      const transformedOrder = await order.transformOrder();
+      res.status(httpStatus.OK).json(transformedOrder);
+    } else {
+      res.status(httpStatus.NOT_FOUND).json({ message: 'Order does not exist' });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 
-// exports.update = (req, res, next) => {
-//   try {
-//     const { productId } = req.params;
-//     if (mongoose.Types.ObjectId.isValid(productId)) {
-//       Product.findOneAndUpdate(
-//         { _id: productId },
-//         req.body,
-//         { new: true },
-//         (error, updatedProduct) => {
-//           if (error) next(error);
-//           else res.status(httpStatus.OK).json(updatedProduct);
-//         },
-//       );
-//     } else {
-//       res.status(httpStatus.NOT_FOUND).json({ message: 'Product does not exist' });
-//     }
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+exports.update = (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+    if (mongoose.Types.ObjectId.isValid(orderId)) {
+      if (req.body.sr_id) req.body.state = 'Processing';
+      Order.findOneAndUpdate({ _id: orderId }, req.body, { new: true }, (error, updatedOrder) => {
+        if (error) next(error);
+        else res.status(httpStatus.OK).json(updatedOrder);
+      });
+    } else {
+      res.status(httpStatus.NOT_FOUND).json({ message: 'Order does not exist' });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 
-// exports.remove = async (req, res, next) => {
-//   try {
-//     const { productId } = req.params;
-//     if (mongoose.Types.ObjectId.isValid(productId)) {
-//       const result = await Product.findOneAndDelete({ _id: productId });
-//       res.status(httpStatus.OK).json(result.deletedCount);
-//     } else {
-//       res.status(httpStatus.NOT_FOUND).json({ message: 'Product does not exist' });
-//     }
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+exports.remove = async (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+    if (mongoose.Types.ObjectId.isValid(orderId)) {
+      const result = await Order.findOneAndDelete({ _id: orderId });
+      res.status(httpStatus.OK).json(result.deletedCount);
+    } else {
+      res.status(httpStatus.NOT_FOUND).json({ message: 'Order does not exist' });
+    }
+  } catch (error) {
+    next(error);
+  }
+};

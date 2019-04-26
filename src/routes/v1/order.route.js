@@ -8,13 +8,13 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(authorize([ADMIN, USER]), controller.list)
+  .get(authorize([ADMIN, USER, SALES]), controller.list)
   .post(authorize([ADMIN, USER]), controller.create);
 
-// router
-//   .route('/:orderId')
-//   .get(authorize([USER, ADMIN, SALES]), controller.get)
-//   .patch(authorize(ADMIN), controller.update)
-//   .delete(authorize(ADMIN), controller.remove);
+router
+  .route('/:orderId')
+  .get(authorize([USER, ADMIN, SALES]), controller.get)
+  .patch(authorize(ADMIN), controller.update)
+  .delete(authorize(ADMIN), controller.remove);
 
 module.exports = router;
