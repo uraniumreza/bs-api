@@ -3,18 +3,6 @@ const mongoose = require('mongoose');
 const Order = require('../models/order.model');
 const Product = require('../models/product.model');
 
-// exports.list = async (req, res, next) => {
-//   try {
-//     let options = { ...req.query };
-//     if (req.user.role === 'user') options = { ...options, active: true };
-//     const products = await Product.list(options);
-//     const transformedProducts = products.map(product => product.transformList());
-//     res.status(httpStatus.OK).json(transformedProducts);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
 const verifyProducts = async (products) => {
   const productIds = [];
   await products.forEach(product => productIds.push(mongoose.Types.ObjectId(product.product_id)));
@@ -71,12 +59,25 @@ exports.create = async (req, res, next) => {
     });
     const order = new Order({
       ...req.body,
+      user_id: req.user._id,
       products: [...finalProducts],
       total_price: totalPrice,
       state: 'Pending',
     });
     const savedOrder = await order.save();
     res.status(httpStatus.CREATED).json(savedOrder);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.list = async (req, res, next) => {
+  try {
+    const options = { ...req.query };
+    if (req.user.role === 'user') options.user_id = req.user._id;
+    else if (req.user.role === 'sales') options.sr_id = req.user._id;
+    const orders = await Order.list(options);
+    Promise.all(orders.map(order => order.transformList())).then(data => res.status(httpStatus.OK).json(data));
   } catch (error) {
     next(error);
   }

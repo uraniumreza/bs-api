@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const autoIncrement = require('mongoose-auto-increment');
 const dbConfig = require('../../config/database.config');
+const Product = require('./product.model');
 
 const { uri } = dbConfig;
 const connection = mongoose.createConnection(uri);
@@ -30,9 +31,14 @@ const orderSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
-    sr: {
+    sr_id: {
       type: ObjectId,
       default: undefined,
+      index: true,
+    },
+    user_id: {
+      type: ObjectId,
+      required: true,
       index: true,
     },
     state: {
@@ -49,15 +55,38 @@ const orderSchema = mongoose.Schema(
 );
 
 orderSchema.method({
-  transformList() {
+  async transformProducts(products) {
+    const productIds = [];
+    products.forEach(product => productIds.push(mongoose.Types.ObjectId(product.product_id)));
+
+    const newProducts = await Product.find(
+      {
+        _id: {
+          $in: productIds,
+        },
+      },
+      {
+        image: 1,
+        name: 1,
+        price: 1,
+      },
+    );
+
+    const transformedProducts = [];
+    newProducts.map(newProduct => transformedProducts.push(newProduct.toObject()));
+
+    return transformedProducts;
+  },
+  async transformList() {
     const transformed = {};
-    const fields = ['order_id', 'products', 'price', 'sr', 'state'];
+    const fields = ['order_id', 'user_id', 'products', 'total_price', 'sr_id', 'state'];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
     });
 
-    return transformed;
+    const transformedProducts = await this.transformProducts(transformed.products);
+    return { ...transformed, products: transformedProducts };
   },
 });
 

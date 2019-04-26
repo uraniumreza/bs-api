@@ -8,7 +8,7 @@ const router = express.Router();
 
 router
   .route('/')
-  //   .get(authorize([ADMIN]), controller.list)
+  .get(authorize([ADMIN, USER]), controller.list)
   .post(authorize([ADMIN, USER]), controller.create);
 
 // router
