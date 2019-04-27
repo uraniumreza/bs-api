@@ -14,7 +14,7 @@ router
 router
   .route('/:orderId')
   .get(authorize([USER, ADMIN, SALES]), controller.get)
-  .patch(authorize(ADMIN), controller.update)
+  .patch(authorize([ADMIN, USER]), controller.update)
   .delete(authorize(ADMIN), controller.remove);
 
 module.exports = router;
