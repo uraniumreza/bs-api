@@ -83,7 +83,16 @@ orderSchema.method({
   },
   async transformOrder() {
     const transformed = {};
-    const fields = ['id', 'order_id', 'user_id', 'products', 'total_price', 'sr_id', 'state'];
+    const fields = [
+      'id',
+      'createdAt',
+      'order_id',
+      'user_id',
+      'products',
+      'total_price',
+      'sr_id',
+      'state',
+    ];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
