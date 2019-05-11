@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const autoIncrement = require('mongoose-auto-increment');
 const dbConfig = require('../../config/database.config');
 const Product = require('./product.model');
+const User = require('./user.model');
 
 const { uri } = dbConfig;
 const connection = mongoose.createConnection(uri);
@@ -55,6 +56,18 @@ const orderSchema = mongoose.Schema(
 );
 
 orderSchema.method({
+  async transformUser(userId) {
+    const user = await User.findById(userId, {
+      phone: 1,
+      shopName: 1,
+      ownerName: 1,
+      address: 1,
+      _id: 0,
+    });
+
+    return user;
+  },
+
   async transformProducts(products) {
     const productIds = [];
     products.forEach(product => productIds.push(mongoose.Types.ObjectId(product.product_id)));
@@ -81,6 +94,7 @@ orderSchema.method({
 
     return transformedProducts;
   },
+
   async transformOrder() {
     const transformed = {};
     const fields = [
@@ -99,7 +113,8 @@ orderSchema.method({
     });
 
     const transformedProducts = await this.transformProducts(transformed.products);
-    return { ...transformed, products: transformedProducts };
+    const transformedUser = await this.transformUser(transformed.user_id);
+    return { ...transformed, products: transformedProducts, user: transformedUser };
   },
 });
 

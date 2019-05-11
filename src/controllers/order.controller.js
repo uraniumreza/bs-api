@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const Order = require('../models/order.model');
 const Product = require('../models/product.model');
 
+// TODO: Order in processing - remove stock
+
 const verifyProducts = async (products) => {
   const productIds = [];
   await products.forEach(product => productIds.push(mongoose.Types.ObjectId(product.product_id)));
@@ -104,6 +106,7 @@ exports.update = (req, res, next) => {
     const { orderId } = req.params;
     if (mongoose.Types.ObjectId.isValid(orderId)) {
       if (req.body.sr_id) req.body.state = 'Processing';
+      // TODO: Products Calculation
       Order.findOneAndUpdate({ _id: orderId }, req.body, { new: true }, (error, updatedOrder) => {
         if (error) next(error);
         else res.status(httpStatus.OK).json(updatedOrder);
