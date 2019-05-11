@@ -3,13 +3,10 @@ const mongoose = require('mongoose');
 const Order = require('../models/order.model');
 const Product = require('../models/product.model');
 
-// TODO: Order in processing - remove stock
-
 const verifyProducts = async (products) => {
   const productIds = [];
   await products.forEach(product => productIds.push(mongoose.Types.ObjectId(product.product_id)));
 
-  // Retrieve price, stock_count of corresponding the product_ids
   const newProducts = await Product.find(
     {
       _id: {
