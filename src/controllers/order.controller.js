@@ -13,7 +13,7 @@ const verifyProducts = async (products) => {
   const newProducts = await Product.find(
     {
       _id: {
-        $in: productIds,
+        $in: products.map(({ product_id }) => product_id),
       },
     },
     {
@@ -50,6 +50,16 @@ const calculatePrice = (products) => {
     totalPrice += price * quantity;
   });
   return totalPrice;
+};
+
+const updateStock = async (product) => {
+  await Product.updateOne(
+    { _id: product.productId },
+    { $inc: { quantity: -product.final_quantity } },
+    (error) => {
+      if (error) return error;
+    },
+  );
 };
 
 exports.create = async (req, res, next) => {
@@ -101,16 +111,41 @@ exports.get = async (req, res, next) => {
   }
 };
 
-exports.update = (req, res, next) => {
+exports.update = async (req, res, next) => {
   try {
     const { orderId } = req.params;
+
     if (mongoose.Types.ObjectId.isValid(orderId)) {
-      if (req.body.sr_id) req.body.state = 'Processing';
-      // TODO: Products Calculation
-      Order.findOneAndUpdate({ _id: orderId }, req.body, { new: true }, (error, updatedOrder) => {
-        if (error) next(error);
-        else res.status(httpStatus.OK).json(updatedOrder);
-      });
+      const order = await Order.findById(orderId, { state: 1, products: 1, _id: 0 });
+      if (order.state === 'Delivered' || order.state === 'Processing') res.status(httpStatus.NOT_ACCEPTABLE).json({ message: 'Order is already delivered!' });
+      else {
+        if (req.body.sr_id) {
+          req.body.state = 'Processing';
+          order.products.map(async (product) => {
+            await updateStock(product);
+          });
+        }
+
+        if (req.body.products) {
+          const finalProducts = await verifyProducts(req.body.products);
+          const totalPrice = await calculatePrice(finalProducts);
+          req.body.total_price = totalPrice;
+          req.body.products = finalProducts;
+        }
+
+        Order.findOneAndUpdate({ _id: orderId }, req.body, { new: true }, (error) => {
+          if (error) next(error);
+          else {
+            res.status(httpStatus.OK).json({
+              message: `${
+                req.body.products
+                  ? 'Products quantity succefully updated!'
+                  : 'Order has been forwarded!'
+              }`,
+            });
+          }
+        });
+      }
     } else {
       res.status(httpStatus.NOT_FOUND).json({ message: 'Order does not exist' });
     }

@@ -82,6 +82,7 @@ orderSchema.method({
         image: 1,
         name: 1,
         price: 1,
+        stock_count: 1,
         _id: 0,
       },
     );
