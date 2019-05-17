@@ -117,7 +117,7 @@ exports.update = async (req, res, next) => {
       const order = await Order.findById(orderId, { state: 1, products: 1, _id: 0 });
       if (order.state === 'Delivered' || order.state === 'Processing') res.status(httpStatus.NOT_ACCEPTABLE).json({ message: 'Order is already delivered!' });
       else {
-        if (req.body.sr_id) {
+        if (req.body.sr_id && mongoose.Types.ObjectId.isValid(req.body.sr_id)) {
           req.body.state = 'Processing';
           order.products.map(async (product) => {
             await updateStock(product);
