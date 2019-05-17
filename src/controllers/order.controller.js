@@ -83,10 +83,11 @@ exports.create = async (req, res, next) => {
 
 exports.list = async (req, res, next) => {
   try {
-    const options = { ...req.query };
+    const queryString = { ...req.query };
+    const { page, perPage, ...options } = queryString;
     if (req.user.role === 'user') options.user_id = req.user._id;
     else if (req.user.role === 'sales') options.sr_id = req.user._id;
-    const orders = await Order.list(options);
+    const orders = await Order.list(perPage, page, options);
     Promise.all(orders.map(order => order.transformOrder())).then(data => res.status(httpStatus.OK).json(data));
   } catch (error) {
     next(error);
