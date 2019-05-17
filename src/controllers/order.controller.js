@@ -117,14 +117,16 @@ exports.update = async (req, res, next) => {
       const order = await Order.findById(orderId, { state: 1, products: 1, _id: 0 });
       if (order.state === 'Delivered' || order.state === 'Processing') res.status(httpStatus.NOT_ACCEPTABLE).json({ message: 'Order is already delivered!' });
       else {
-        if (req.body.sr_id && mongoose.Types.ObjectId.isValid(req.body.sr_id)) {
-          req.body.state = 'Processing';
-          order.products.map(async (product) => {
-            await updateStock(product);
-          });
-        }
-
-        if (req.body.products) {
+        if (req.body.sr_id) {
+          if (mongoose.Types.ObjectId.isValid(req.body.sr_id)) {
+            req.body.state = 'Processing';
+            order.products.map(async (product) => {
+              await updateStock(product);
+            });
+          } else {
+            res.status(httpStatus.NOT_FOUND).json({ message: 'SR ID does not exist!' });
+          }
+        } else if (req.body.products) {
           const finalProducts = await verifyProducts(req.body.products);
           const totalPrice = await calculatePrice(finalProducts);
           req.body.total_price = totalPrice;
@@ -134,13 +136,11 @@ exports.update = async (req, res, next) => {
         Order.findOneAndUpdate({ _id: orderId }, req.body, { new: true }, (error) => {
           if (error) next(error);
           else {
-            res.status(httpStatus.OK).json({
-              message: `${
-                req.body.products
-                  ? "Product's quantity successfully updated!"
-                  : 'Order has been forwarded!'
-              }`,
-            });
+            let message;
+            if (req.body.products) message = "Product's quantity successfully updated!";
+            else if (req.body.sr_id) message = 'Order has been forwarded!';
+            else if (req.body.state) message = `Order has been ${req.body.state}`;
+            res.status(httpStatus.OK).json({ message });
           }
         });
       }
