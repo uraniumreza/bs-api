@@ -37,7 +37,9 @@ exports.update = (req, res, next) => {
 
 exports.list = async (req, res, next) => {
   try {
-    const users = await User.list(req.query);
+    const queryString = { ...req.query };
+    const { page, perPage, ...options } = queryString;
+    const users = await User.list(perPage, page, options);
     const transformedUsers = users.map(user => user.transform());
     res.json(transformedUsers);
   } catch (error) {
