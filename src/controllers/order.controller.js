@@ -137,7 +137,7 @@ exports.update = async (req, res, next) => {
             res.status(httpStatus.OK).json({
               message: `${
                 req.body.products
-                  ? 'Products quantity succefully updated!'
+                  ? "Product's quantity successfully updated!"
                   : 'Order has been forwarded!'
               }`,
             });
