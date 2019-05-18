@@ -116,6 +116,7 @@ exports.get = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const { orderId } = req.params;
+    console.log(orderId);
 
     if (mongoose.Types.ObjectId.isValid(orderId)) {
       const order = await Order.findById(orderId, { state: 1, products: 1, _id: 0 });
@@ -146,18 +147,17 @@ exports.update = async (req, res, next) => {
         order.products.map(async (product) => {
           await updateStock(product);
         });
-
-        Order.findOneAndUpdate({ _id: orderId }, req.body, { new: true }, (error) => {
-          if (error) next(error);
-          else {
-            let message;
-            if (req.body.products) message = "Product's quantity successfully updated!";
-            else if (req.body.sr_id) message = 'Order has been forwarded!';
-            else if (req.body.state) message = `Order has been ${req.body.state}`;
-            res.status(httpStatus.OK).json({ message });
-          }
-        });
       }
+      Order.findOneAndUpdate({ _id: orderId }, req.body, { new: true }, (error) => {
+        if (error) next(error);
+        else {
+          let message;
+          if (req.body.products) message = "Product's quantity successfully updated!";
+          else if (req.body.sr_id) message = 'Order has been forwarded!';
+          else if (req.body.state) message = `Order has been ${req.body.state}`;
+          res.status(httpStatus.OK).json({ message });
+        }
+      });
     } else {
       res.status(httpStatus.NOT_FOUND).json({ message: 'Order does not exist' });
     }
