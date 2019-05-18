@@ -115,23 +115,33 @@ exports.update = async (req, res, next) => {
 
     if (mongoose.Types.ObjectId.isValid(orderId)) {
       const order = await Order.findById(orderId, { state: 1, products: 1, _id: 0 });
-      if (order.state === 'Delivered' || order.state === 'Processing') res.status(httpStatus.NOT_ACCEPTABLE).json({ message: 'Order is already delivered!' });
-      else {
-        if (req.body.sr_id) {
-          if (mongoose.Types.ObjectId.isValid(req.body.sr_id)) {
-            req.body.state = 'Processing';
-            order.products.map(async (product) => {
-              await updateStock(product);
-            });
-          } else {
-            res.status(httpStatus.NOT_FOUND).json({ message: 'SR ID does not exist!' });
+      if (
+        req.user.role === 'user'
+        && order.state === 'Processing'
+        && req.body.state === 'Delivered'
+      ) {
+        Order.findOneAndUpdate({ _id: orderId }, req.body, { new: true }, (error) => {
+          if (error) next(error);
+          else {
+            res.status(httpStatus.OK).json({ message: 'Order has been moved to Delivered state!' });
           }
-        } else if (req.body.products) {
-          const finalProducts = await verifyProducts(req.body.products);
-          const totalPrice = await calculatePrice(finalProducts);
-          req.body.total_price = totalPrice;
-          req.body.products = finalProducts;
+        });
+      } else if (order.state === 'Delivered' || order.state === 'Processing') {
+        res.status(httpStatus.NOT_ACCEPTABLE).json({ message: 'Order is already delivered!' });
+      } else if (req.body.sr_id) {
+        if (mongoose.Types.ObjectId.isValid(req.body.sr_id)) {
+          req.body.state = 'Processing';
+          order.products.map(async (product) => {
+            await updateStock(product);
+          });
+        } else {
+          res.status(httpStatus.NOT_FOUND).json({ message: 'SR ID does not exist!' });
         }
+      } else if (req.body.products) {
+        const finalProducts = await verifyProducts(req.body.products);
+        const totalPrice = await calculatePrice(finalProducts);
+        req.body.total_price = totalPrice;
+        req.body.products = finalProducts;
 
         Order.findOneAndUpdate({ _id: orderId }, req.body, { new: true }, (error) => {
           if (error) next(error);
