@@ -135,9 +135,6 @@ exports.update = async (req, res, next) => {
       } else if (req.body.sr_id) {
         if (mongoose.Types.ObjectId.isValid(req.body.sr_id)) {
           req.body.state = 'Processing';
-          order.products.map(async (product) => {
-            await updateStock(product);
-          });
         } else {
           res.status(httpStatus.NOT_FOUND).json({ message: 'SR ID does not exist!' });
         }
@@ -146,6 +143,9 @@ exports.update = async (req, res, next) => {
         const totalPrice = await calculatePrice(finalProducts);
         req.body.total_price = totalPrice;
         req.body.products = finalProducts;
+        order.products.map(async (product) => {
+          await updateStock(product);
+        });
 
         Order.findOneAndUpdate({ _id: orderId }, req.body, { new: true }, (error) => {
           if (error) next(error);
