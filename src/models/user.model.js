@@ -48,8 +48,9 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     signedupBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
+      maxlength: 11,
+      trim: true,
     },
   },
   {
