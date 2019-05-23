@@ -10,10 +10,6 @@ const notificationSchema = mongoose.Schema(
       type: String,
       default: undefined,
     },
-    featured: {
-      type: Boolean,
-      default: false,
-    },
     active: {
       type: Boolean,
       default: true,
