@@ -6,7 +6,8 @@ exports.list = async (req, res, next) => {
   try {
     let options = { ...req.query };
     if (req.user.role === 'user') options = { ...options, active: true };
-    const notifications = await Notification.list(options);
+    let notifications = await Notification.list(options);
+    if (req.user.role === 'user' && req.query.featured === true) notifications = notifications.filter(notification => notification.image);
     res.status(httpStatus.OK).json(notifications);
   } catch (error) {
     next(error);
