@@ -1,7 +1,19 @@
 const mongoose = require('mongoose');
+const autoIncrement = require('mongoose-auto-increment');
+const dbConfig = require('../../config/database.config');
+
+const { uri } = dbConfig;
+const connection = mongoose.createConnection(uri);
+autoIncrement.initialize(connection);
 
 const productSchema = mongoose.Schema(
   {
+    product_id: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+    },
     name: {
       type: String,
       required: true,
@@ -62,7 +74,16 @@ const productSchema = mongoose.Schema(
 productSchema.method({
   transformList() {
     const transformed = {};
-    const fields = ['id', 'name', 'image', 'price', 'discount', 'stock_count', 'brand'];
+    const fields = [
+      'id',
+      'name',
+      'image',
+      'price',
+      'discount',
+      'stock_count',
+      'brand',
+      'product_id',
+    ];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
@@ -79,5 +100,12 @@ productSchema.statics = {
       .exec();
   },
 };
+
+productSchema.plugin(autoIncrement.plugin, {
+  model: 'Product',
+  field: 'product_id',
+  startAt: 1000,
+  incrementBy: 1,
+});
 
 module.exports = mongoose.model('Product', productSchema);

@@ -3,13 +3,25 @@ const bcrypt = require('bcrypt');
 const moment = require('moment');
 const jwt = require('jwt-simple');
 const httpStatus = require('http-status');
+const autoIncrement = require('mongoose-auto-increment');
 const { jwtSecret, jwtExpirationInterval } = require('../../config/vars');
 const APIError = require('../utils/APIError');
+const dbConfig = require('../../config/database.config');
+
+const { uri } = dbConfig;
+const connection = mongoose.createConnection(uri);
+autoIncrement.initialize(connection);
 
 const roles = ['user', 'admin', 'sales'];
 
 const userSchema = new mongoose.Schema(
   {
+    user_id: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+    },
     phone: {
       type: String,
       required: true,
@@ -72,7 +84,16 @@ userSchema.pre('save', async function save(next) {
 userSchema.method({
   transform() {
     const transformed = {};
-    const fields = ['id', 'shopName', 'ownerName', 'address', 'phone', 'createdAt', 'role'];
+    const fields = [
+      'id',
+      'shopName',
+      'ownerName',
+      'address',
+      'phone',
+      'createdAt',
+      'role',
+      'user_id',
+    ];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
@@ -172,5 +193,12 @@ userSchema.statics = {
     return error;
   },
 };
+
+userSchema.plugin(autoIncrement.plugin, {
+  model: 'User',
+  field: 'user_id',
+  startAt: 50000,
+  incrementBy: 1,
+});
 
 module.exports = mongoose.model('User', userSchema);

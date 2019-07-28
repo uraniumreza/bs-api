@@ -1,4 +1,5 @@
 const httpStatus = require('http-status');
+const mongoose = require('mongoose');
 const User = require('../models/user.model');
 
 exports.load = async (req, res, next, id) => {
@@ -47,11 +48,16 @@ exports.list = async (req, res, next) => {
   }
 };
 
-exports.remove = (req, res, next) => {
-  const { user } = req.locals;
-
-  user
-    .remove()
-    .then(() => res.status(httpStatus.NO_CONTENT).end())
-    .catch(e => next(e));
+exports.remove = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    if (mongoose.Types.ObjectId.isValid(userId)) {
+      const result = await User.findOneAndDelete({ _id: userId });
+      res.status(httpStatus.OK).json(result.deletedCount);
+    } else {
+      res.status(httpStatus.NOT_FOUND).json({ message: 'User does not exist' });
+    }
+  } catch (error) {
+    next(error);
+  }
 };
