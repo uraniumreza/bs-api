@@ -2,12 +2,20 @@ const httpStatus = require('http-status');
 const mongoose = require('mongoose');
 const Product = require('../models/product.model');
 
+function productSorter(a, b) {
+  if (!b.brand || b.brand.toLowerCase().includes('bs') === false) {
+    return -1;
+  }
+  return 1;
+}
+
 exports.list = async (req, res, next) => {
   try {
     let options = { ...req.query };
     if (req.user.role === 'user') options = { ...options, active: true };
     const products = await Product.list(options);
     const transformedProducts = products.map(product => product.transformList());
+    transformedProducts.sort(productSorter);
     res.status(httpStatus.OK).json(transformedProducts);
   } catch (error) {
     next(error);

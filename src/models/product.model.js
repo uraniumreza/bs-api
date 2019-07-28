@@ -62,7 +62,7 @@ const productSchema = mongoose.Schema(
 productSchema.method({
   transformList() {
     const transformed = {};
-    const fields = ['id', 'name', 'image', 'price', 'discount', 'stock_count'];
+    const fields = ['id', 'name', 'image', 'price', 'discount', 'stock_count', 'brand'];
 
     fields.forEach((field) => {
       transformed[field] = this[field];
