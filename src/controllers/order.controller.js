@@ -92,7 +92,10 @@ exports.list = async (req, res, next) => {
       options.sr_id = req.user._id;
     }
     const orders = await Order.list(perPage, page, options);
-    Promise.all(orders.map(order => order.transformOrder())).then(data => res.status(httpStatus.OK).json(data));
+    Promise.all(orders.map(order => order.transformOrder())).then((unfilteredOrders) => {
+      const filteredOrders = unfilteredOrders.filter(unfilteredOrder => unfilteredOrder.user);
+      return res.status(httpStatus.OK).json(filteredOrders);
+    });
   } catch (error) {
     next(error);
   }
@@ -116,7 +119,6 @@ exports.get = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const { orderId } = req.params;
-    console.log(orderId);
 
     if (mongoose.Types.ObjectId.isValid(orderId)) {
       const order = await Order.findById(orderId, { state: 1, products: 1, _id: 0 });
