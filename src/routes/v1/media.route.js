@@ -4,11 +4,8 @@ const parser = require('../../middlewares/image-parser');
 
 const router = express.Router();
 
-router.route('/upload').post(authorize(ADMIN), parser.single('image'), (req, res) => {
-  const image = {};
-  image.url = req.file.url;
-  image.id = req.file.public_id;
-  res.json(image);
-});
+router
+  .route('/upload')
+  .post(authorize(ADMIN), parser.single('image'), (req, res) => res.json(req.file));
 
 module.exports = router;
