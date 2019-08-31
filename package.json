@@ -7,9 +7,6 @@
   "author": "Nayeem Reza, Aroup Goldar Dhruba",
   "license": "None",
   "private": true,
-  "scripts": {
-    "start": "nodemon server.js"
-  },
   "dependencies": {
     "bcrypt": "^3.0.4",
     "bluebird": "^3.5.3",
