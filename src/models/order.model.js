@@ -107,6 +107,7 @@ orderSchema.method({
       'total_price',
       'sr_id',
       'state',
+      'updatedAt',
     ];
 
     fields.forEach((field) => {
