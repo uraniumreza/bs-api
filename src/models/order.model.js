@@ -121,7 +121,7 @@ orderSchema.method({
 });
 
 orderSchema.statics = {
-  list(perPage = 10, page = 1, options) {
+  list(perPage = 10000, page = 1, options) {
     return this.find(options)
       .sort({ createdAt: -1 })
       .skip(perPage * (page - 1))

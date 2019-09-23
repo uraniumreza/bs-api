@@ -167,7 +167,7 @@ userSchema.statics = {
     throw new APIError(err);
   },
 
-  list(perPage = 20, page = 1, options) {
+  list(perPage = 2000, page = 1, options) {
     return this.find(options)
       .sort({ createdAt: -1 })
       .skip(perPage * (page - 1))
