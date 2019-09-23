@@ -93,6 +93,7 @@ userSchema.method({
       'createdAt',
       'role',
       'user_id',
+      'signedupBy',
     ];
 
     fields.forEach((field) => {
